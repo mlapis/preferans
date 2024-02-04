@@ -3,6 +3,7 @@ import {
   createBoardClasses,
   Player,
   Board,
+  Do,
 } from '@boardzilla/core';
 
 export class HeartsPlayer extends Player<HeartsPlayer, HeartsBoard> {
@@ -16,7 +17,9 @@ class HeartsBoard extends Board<HeartsPlayer, HeartsBoard> {
   /**
    * Any overall properties of your game go here
    */
-  phase: number = 1;
+  round = 0
+  startingPlayer?: HeartsPlayer
+  heartsBroken: boolean = false
 }
 
 const { Space, Piece } = createBoardClasses<HeartsPlayer, HeartsBoard>();
@@ -30,10 +33,10 @@ type Suit = 'club' | 'heart' | 'spade' | 'diamond'
 export class Card extends Piece {
   suit: Suit
   value: number
+  order: number
 }
 
 export default createGame(HeartsPlayer, HeartsBoard, game => {
-
   const { board, action } = game;
   const { playerActions, whileLoop, loop, eachPlayer, everyPlayer } = game.flowCommands;
 
@@ -47,7 +50,9 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
    */
   for (const player of game.players) {
     const hand = board.create(Space, 'hand', { player });
+    const waiting = board.create(Space, 'waiting', { player });
     hand.onEnter(Card, t => t.showOnlyTo(player));
+    waiting.onEnter(Card, (e) => e.hideFromAll());
   }
 
   board.create(Space, 'middle');
@@ -56,10 +61,11 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
   board.create(Space, 'deck');
   $.deck.onEnter(Card, (e) => e.hideFromAll());
   $.deck.setOrder('stacking');
-
-  ['club', 'heart', 'spade', 'diamond'].forEach((suit: Suit) => {
+  let order = 0;
+  ['club', 'spade', 'diamond', 'heart'].forEach((suit: Suit) => {
     for (let i= 1 ; i <= 13; i++) {
-      $.deck.create(Card, `${suit}-${i}`, { suit, value: i });
+      $.deck.create(Card, `${suit}-${i}`, { suit, value: i, order });
+      order++
     }1
   })
 
@@ -67,10 +73,31 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
    * Define all possible game actions.
    */
   game.defineActions({
-    pickThree: player => action({prompt: 'Pick three and pass them to the left'}).
-    chooseOnBoard('cards', () => board.all(Card, {owner: player}), {number: 3} ).
-    // TODO: this should be an element collection
-    do(({cards}) => cards.forEach(c => c.putInto(game.players[player.position === game.players.length - 1 ? 0 : player.position + 1].my(Space)!)))
+    pickThree: player => {
+      const direction = ["left", 'center', "right", null][board.round % 4]
+      if (direction === null) {
+        return action()
+      }
+      return action({prompt: 'Pick three and pass them to the '+direction}).
+        chooseOnBoard('cards', () => player.my('hand')!.all(Card), {number: 3} ).
+        do(({cards}) => cards.forEach(c => c.putInto(game.players.seatedNext(player, (board.round % 4) + 1).my('waiting')!)))
+    },
+    playCard: player => action().chooseOnBoard('card', () => {
+        const firstCard = $.middle.first(Card)
+        if (!firstCard) {
+          return player.my('hand')!.all(Card, (c) => board.heartsBroken || c.suit !== 'heart')
+        }
+        const followingCards = player.my('hand')!.all(Card, {suit: firstCard.suit})
+        return followingCards.length === 0 ? player.my('hand')!.all(Card) : followingCards
+        // TODO: why doesn't this work?
+        // }, {skipIf: () => player.my('hand')!.all(Card).length === 1}).
+      }, {skipIf: "never"}).
+    do(({card}) => {
+        if (card.suit === "heart") {
+          board.heartsBroken = true
+        }
+        card.putInto($.middle)
+      })
   });
 
   /**
@@ -82,22 +109,62 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
       while: () => !game.players.find(p => p.score >= 100),
       do: loop(
         () => {
+          // TODO: i don't understand how to refactor this
           $.deck.shuffle();
-          board.all(Card).forEach((card, index) => {
-            console.log("dealing ", card, index,game.players[index % game.players.length].my(Space, {name: 'hand'}))
+          $.deck.all(Card).forEach((card, index) => {
             card.putInto(game.players[index % game.players.length].my(Space, {name: 'hand'})!)
           })
         },
-        everyPlayer({do: playerActions({actions: ['pickThree']})})
+        everyPlayer({do: playerActions({actions: ['pickThree']})}),
+        () => {
+          game.players.forEach(p => p.my('waiting')?.all(Card).putInto(p.my('hand')!))
+          const firstPlayer = game.players.find(p => p.has(Card, 'club-2'))
+          board.startingPlayer = firstPlayer
+        },
+        loop(
+          eachPlayer({name: "play", startingPlayer: () => board.startingPlayer!, do: playerActions({name: "playCard", actions: ['playCard']})}),
+          () => {
+            const playedCards = $.middle.all(Card)
+            let highest = 0
+            playedCards.forEach(c => {
+              if (c.suit !== playedCards[0].suit) return
+              if (c.value < highest) return
+              highest = c.value
+            })
+            const trickWinnerIndex = playedCards.findIndex(c => c.suit === playedCards[0].suit && c.value === highest)
+            const trickWinner = game.players.seatedNext(board.startingPlayer!, trickWinnerIndex)
+            $.middle.all(Card).putInto(trickWinner.my('waiting')!)
+            board.startingPlayer = trickWinner
+            if (!game.players[0].my('hand')!.has(Card)) {
+              Do.break()
+            }
+          }
+        ),
+        () => {
+          const scores = game.players.map(p => p.my('waiting')!.all(Card).reduce((total, c) => {
+            if (c.name === 'spade-12') {
+              return total + 13
+            } else if (c.suit === 'heart') {
+              return total + 1
+            } else {
+              return total
+            }
+          }, 0))
+          const controlled = scores.find((s) => s === 26)
+          game.players.forEach((p, i) => {
+            p.score += controlled ? 26 - scores[i] : scores[i]
+          })
+          board.round++
+          board.startingPlayer = undefined
+          board.heartsBroken = false
+          board.all(Card).putInto($.deck)
+          $.deck.shuffle();
+          $.deck.all(Card).forEach((card, index) => {
+            card.putInto(game.players[index % game.players.length].my(Space, {name: 'hand'})!)
+          })
+          game.players.forEach(p => p.my('hand')!.all(Card).sortBy("order"))
+        }
       )
     })
-    // loop(
-    //   eachPlayer({
-    //     name: 'player',
-    //     do: playerActions({
-    //       actions: ['take']
-    //     }),
-    //   })
-    // )
-  );
+  )
 });
