@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, numberSetting } from '@boardzilla/core';
+import { render, toggleSetting } from '@boardzilla/core';
 import { default as setup, Space, Card } from '../game/index.js';
 
 import './style.scss';
@@ -7,7 +7,9 @@ import '@boardzilla/core/index.css';
 
 render(setup, {
   settings: {
-    tokens: numberSetting('Number of tokens', 4, 24),
+    omnibus: toggleSetting("10 of diamonds worth -10 points?"),
+    noPass: toggleSetting("have a no-pass round?")
+    // tokens: numberSetting('Number of tokens', 4, 24),
   },
   layout: board => {
     // board.appearance({

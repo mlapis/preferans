@@ -20,6 +20,8 @@ class HeartsBoard extends Board<HeartsPlayer, HeartsBoard> {
   round = 0
   startingPlayer?: HeartsPlayer
   heartsBroken: boolean = false
+  omnibus = false
+  noPass = false
 }
 
 const { Space, Piece } = createBoardClasses<HeartsPlayer, HeartsBoard>();
@@ -44,6 +46,9 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
    * Register all custom pieces and spaces
    */
   board.registerClasses(Card);
+
+  board.omnibus = game.setting("omnibus") as boolean
+  board.noPass = game.setting("noPass") as boolean
 
   /**
    * Create your game board's layout and all included pieces.
@@ -74,16 +79,20 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
    */
   game.defineActions({
     pickThree: player => {
-      const direction = ["left", 'center', "right", null][board.round % 4]
+      const directions = board.noPass ? ["left", 'center', "right", null] : ["left", 'center', "right"]
+      const direction = directions[board.round % directions.length]
       if (direction === null) {
         return action()
       }
       return action({prompt: 'Pick three and pass them to the '+direction}).
         chooseOnBoard('cards', () => player.my('hand')!.all(Card), {number: 3} ).
-        do(({cards}) => cards.forEach(c => c.putInto(game.players.seatedNext(player, (board.round % 4) + 1).my('waiting')!)))
+        do(({cards}) => cards.forEach(c => c.putInto(game.players.seatedNext(player, (board.round % directions.length) + 1).my('waiting')!)))
     },
     playCard: player => action().chooseOnBoard('card', () => {
-        const firstCard = $.middle.first(Card)
+      if (player.my('hand')!.has(Card, 'club-2')) {
+        return player.allMy(Card, 'club-2')
+      }
+      const firstCard = $.middle.first(Card)
         if (!firstCard) {
           return player.my('hand')!.all(Card, (c) => board.heartsBroken || c.suit !== 'heart')
         }
@@ -114,6 +123,7 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           $.deck.all(Card).forEach((card, index) => {
             card.putInto(game.players[index % game.players.length].my(Space, {name: 'hand'})!)
           })
+          game.players.forEach(p => p.my('hand')!.all(Card).sortBy("order"))
         },
         everyPlayer({do: playerActions({actions: ['pickThree']})}),
         () => {
@@ -141,18 +151,33 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           }
         ),
         () => {
-          const scores = game.players.map(p => p.my('waiting')!.all(Card).reduce((total, c) => {
-            if (c.name === 'spade-12') {
-              return total + 13
-            } else if (c.suit === 'heart') {
-              return total + 1
-            } else {
-              return total
-            }
-          }, 0))
+          // TODO: something crazy is happening here
+          const scores = game.players.map(p => {
+            let score = 0
+            const cards = p.my('waiting')!.all(Card)
+            console.log("p.my('waiting')!.all(Card)", p.my('waiting')!.all(Card).length)
+            cards.forEach(c => {
+              console.log("c.name", c.name, c.suit, c.order, c.value, Object.getOwnPropertyNames(c))
+              if (c.name === 'spade-12') {
+                score += 13
+              } else if (c.suit === 'heart') {
+                score += 1
+              }
+            })
+            return score
+          })
+          console.log("scores", scores)
           const controlled = scores.find((s) => s === 26)
           game.players.forEach((p, i) => {
             p.score += controlled ? 26 - scores[i] : scores[i]
+          })
+          if (board.omnibus) {
+            game.players.forEach((p, i) => {
+              if (p.has('Card', 'diamond-10')) p.score -= 10
+            })
+          }
+          game.players.forEach((p, i) => {
+            console.log(p.name, p.score)
           })
           board.round++
           board.startingPlayer = undefined
