@@ -17,13 +17,13 @@ render(setup, {
     // });
 
     board.all(Card).appearance({
-      aspectRatio: 1,
-      // render: ({name}) => (
-      //   <div className="flipper">
-      //     <div className="front">{name}</div>
-      //     <div className="back">BACK</div>
-      //   </div>
-      // )
+      aspectRatio: 1/1.5,
+      render: ({name}) => (
+        <div className="flipper">
+          <div className="front">{name}</div>
+          <div className="back">BACK</div>
+        </div>
+      )
     });
 
     board.all('hand').layout(Card, {
@@ -34,14 +34,9 @@ render(setup, {
 
     board.all('waiting').layout(Card, {
       rows: {max: 1},
-      offsetColumn: {x: 5, y: 5},
+      offsetColumn: {x: 2, y: 2},
       maxOverlap: 0,
-      haphazardly: 0.1,
       direction: 'ltr',
-    })
-
-    board.all(Card).appearance({
-      aspectRatio: 1/2
     })
 
     // board.layout(Space, {
