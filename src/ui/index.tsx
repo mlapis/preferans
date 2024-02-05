@@ -17,11 +17,11 @@ render(setup, {
     // });
 
     board.all(Card).appearance({
-      aspectRatio: 1/1.5,
+      aspectRatio: 0.69,
       render: ({name}) => (
         <div className="flipper">
-          <div className="front">{name}</div>
-          <div className="back">BACK</div>
+          <div className="front"></div>
+          <div className="back"></div>
         </div>
       )
     });
