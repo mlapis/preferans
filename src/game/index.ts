@@ -34,7 +34,7 @@ type Suit = 'club' | 'heart' | 'spade' | 'diamond'
  */
 export class Card extends Piece {
   suit: Suit
-  value: number
+  value: string
   order: number
 }
 
@@ -66,12 +66,10 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
   board.create(Space, 'deck');
   $.deck.onEnter(Card, (e) => e.hideFromAll());
   $.deck.setOrder('stacking');
-  let order = 0;
   ['club', 'spade', 'diamond', 'heart'].forEach((suit: Suit) => {
-    for (let i= 1 ; i <= 13; i++) {
-      $.deck.create(Card, `${suit}-${i}`, { suit, value: i, order });
-      order++
-    }1
+    ['2', '3','4','5','6','7','8','9','10', 'j', 'q', 'k', 'a'].forEach((value, order) => {
+      $.deck.create(Card, `${value}-${suit}`, { suit, value, order });
+    })
   })
 
   /**
@@ -89,8 +87,8 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
         do(({cards}) => cards.forEach(c => c.putInto(game.players.seatedNext(player, (board.round % directions.length) + 1).my('waiting')!)))
     },
     playCard: player => action().chooseOnBoard('card', () => {
-      if (player.my('hand')!.has(Card, 'club-2')) {
-        return player.allMy(Card, 'club-2')
+      if (player.my('hand')!.has(Card, '2-club')) {
+        return player.allMy(Card, '2-club')
       }
       const firstCard = $.middle.first(Card)
         if (!firstCard) {
@@ -123,12 +121,12 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           $.deck.all(Card).forEach((card, index) => {
             card.putInto(game.players[index % game.players.length].my(Space, {name: 'hand'})!)
           })
-          game.players.forEach(p => p.my('hand')!.all(Card).sortBy("order"))
+          game.players.forEach(p => p.my('hand')!.all(Card).sortBy(["suit", "order"]))
         },
         everyPlayer({do: playerActions({actions: ['pickThree']})}),
         () => {
           game.players.forEach(p => p.my('waiting')?.all(Card).putInto(p.my('hand')!))
-          const firstPlayer = game.players.find(p => p.has(Card, 'club-2'))
+          const firstPlayer = game.players.find(p => p.has(Card, '2-club'))
           board.startingPlayer = firstPlayer
         },
         loop(
@@ -138,10 +136,10 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
             let highest = 0
             playedCards.forEach(c => {
               if (c.suit !== playedCards[0].suit) return
-              if (c.value < highest) return
-              highest = c.value
+              if (c.order < highest) return
+              highest = c.order
             })
-            const trickWinnerIndex = playedCards.findIndex(c => c.suit === playedCards[0].suit && c.value === highest)
+            const trickWinnerIndex = playedCards.findIndex(c => c.suit === playedCards[0].suit && c.order === highest)
             const trickWinner = game.players.seatedNext(board.startingPlayer!, trickWinnerIndex)
             $.middle.all(Card).putInto(trickWinner.my('waiting')!)
             board.startingPlayer = trickWinner
@@ -155,10 +153,9 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           const scores = game.players.map(p => {
             let score = 0
             const cards = p.my('waiting')!.all(Card)
-            console.log("p.my('waiting')!.all(Card)", p.my('waiting')!.all(Card).length)
             cards.forEach(c => {
               console.log("c.name", c.name, c.suit, c.order, c.value, Object.getOwnPropertyNames(c))
-              if (c.name === 'spade-12') {
+              if (c.name === 'q-spade') {
                 score += 13
               } else if (c.suit === 'heart') {
                 score += 1
@@ -173,7 +170,7 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           })
           if (board.omnibus) {
             game.players.forEach((p, i) => {
-              if (p.has('Card', 'diamond-10')) p.score -= 10
+              if (p.has('Card', '10-diamond')) p.score -= 10
             })
           }
           game.players.forEach((p, i) => {
@@ -187,7 +184,7 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           $.deck.all(Card).forEach((card, index) => {
             card.putInto(game.players[index % game.players.length].my(Space, {name: 'hand'})!)
           })
-          game.players.forEach(p => p.my('hand')!.all(Card).sortBy("order"))
+          game.players.forEach(p => p.my('hand')!.all(Card).sortBy(["suit", "order"]))
         }
       )
     })
