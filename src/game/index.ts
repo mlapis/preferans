@@ -56,7 +56,10 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
   for (const player of game.players) {
     const hand = board.create(Space, 'hand', { player });
     const waiting = board.create(Space, 'waiting', { player });
-    hand.onEnter(Card, t => t.showOnlyTo(player));
+    hand.onEnter(Card, t => {
+      t.showOnlyTo(player)
+      hand.sortBy([(c: Card) => ['heart', 'spade', 'diamond', 'club'].indexOf(c.suit), (c:Card) => -c.rank])
+    });
     waiting.onEnter(Card, (e) => e.hideFromAll());
   }
 
@@ -121,7 +124,6 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           $.deck.all(Card).forEach((card, index) => {
             card.putInto(game.players[index % game.players.length].my(Space, {name: 'hand'})!)
           })
-          game.players.forEach(p => p.my('hand')!.all(Card).sortBy(["suit", "rank"]))
         },
         everyPlayer({do: playerActions({actions: ['pickThree']})}),
         () => {
@@ -137,10 +139,8 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
             playedCards.forEach(c => {
               if (c.suit !== playedCards[0].suit) return
               if (c.rank < highest) return
-              console.log("c.order", c.rank, c.suit)
               highest = c.rank
             })
-            console.log("highest", highest)
             const trickWinnerIndex = playedCards.findIndex(c => c.suit === playedCards[0].suit && c.rank === highest)
             const trickWinner = game.players.seatedNext(board.startingPlayer!, trickWinnerIndex)
             $.middle.all(Card).putInto(trickWinner.my('waiting')!)
@@ -156,7 +156,6 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
             let score = 0
             const cards = p.my('waiting')!.all(Card)
             cards.forEach(c => {
-              console.log("c.name", c.name, c.suit, c.rank, c.value, Object.getOwnPropertyNames(c))
               if (c.name === 'q-spade') {
                 score += 13
               } else if (c.suit === 'heart') {
@@ -165,7 +164,6 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
             })
             return score
           })
-          console.log("scores", scores)
           const controlled = scores.find((s) => s === 26)
           game.players.forEach((p, i) => {
             p.score += controlled ? 26 - scores[i] : scores[i]
@@ -186,7 +184,6 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           $.deck.all(Card).forEach((card, index) => {
             card.putInto(game.players[index % game.players.length].my(Space, {name: 'hand'})!)
           })
-          game.players.forEach(p => p.my('hand')!.all(Card).sortBy(["suit", "rank"]))
         }
       )
     })

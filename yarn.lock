@@ -21,9 +21,9 @@
     zustand "^4.4.0"
 
 "@boardzilla/devtools@~0.0.56":
-  version "0.0.64"
-  resolved "https://registry.yarnpkg.com/@boardzilla/devtools/-/devtools-0.0.64.tgz#c068f2b090a86799b5b32ebff84350c3f5166dd9"
-  integrity sha512-Za+ds/qTfg6n20saDuPzwui937qDwRrPZBBJrP0k88kxBE5MN7qaasUSfMs9rspU6b8IjtI3NBt6zJVNVD0M6A==
+  version "0.0.65"
+  resolved "https://registry.yarnpkg.com/@boardzilla/devtools/-/devtools-0.0.65.tgz#1d9ae042b8862111a02a2afc48efc51a6aa176b2"
+  integrity sha512-8OnQitU5os/bnOgZ2/h/FS7Jf3SADtdAKlvFRo6Tu2n6EZTHIRoCirW3vfllWei16+ALeRuyyv8u8EELtzn4nw==
   dependencies:
     "@joshbuddy/go-npm" "0.2.2"
 
@@ -1076,9 +1076,9 @@ mlly@^1.2.0, mlly@^1.4.2:
     ufo "^1.3.2"
 
 mnemonist@^0.39.0:
-  version "0.39.7"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.39.7.tgz#712eebb827a31c83c9711f17d6256d2670c87a30"
-  integrity sha512-ix3FwHWZgdXUt0dHM8bCrI4r1KMeYx8bCunPCYmvKXq4tn6gbNsqrsb4q0kDbDqbpIOvEaW5Sn+dmDwGydfrwA==
+  version "0.39.8"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.39.8.tgz#9078cd8386081afd986cca34b52b5d84ea7a4d38"
+  integrity sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==
   dependencies:
     obliterator "^2.0.1"
 
