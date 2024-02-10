@@ -1,4 +1,9 @@
 #play-area {
+  .profile-badge {
+    float: left;
+    top: -20px;
+  }
+
   .Card {
     perspective: 1000px;
 
@@ -219,7 +224,6 @@
     &[data-name="a-diamond"] {
       background-image: url('./imgs/ace_of_diamonds.svg');
     }
-
 
     .flipper {
       width: 100%;

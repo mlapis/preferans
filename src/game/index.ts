@@ -151,7 +151,6 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           }
         ),
         () => {
-          // TODO: something crazy is happening here
           const scores = game.players.map(p => {
             let score = 0
             const cards = p.my('waiting')!.all(Card)
@@ -165,17 +164,14 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
             return score
           })
           const controlled = scores.find((s) => s === 26)
-          game.players.forEach((p, i) => {
-            p.score += controlled ? 26 - scores[i] : scores[i]
+          scores.forEach((score, i) => {
+            game.players[i].score += controlled ? 26 - scores[i] : scores[i]
           })
           if (board.omnibus) {
             game.players.forEach((p, i) => {
               if (p.has('Card', '10-diamond')) p.score -= 10
             })
           }
-          game.players.forEach((p, i) => {
-            console.log(p.name, p.score)
-          })
           board.round++
           board.startingPlayer = undefined
           board.heartsBroken = false
