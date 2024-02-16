@@ -54,8 +54,9 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
    * Create your game board's layout and all included pieces.
    */
   for (const player of game.players) {
-    const hand = board.create(Space, 'hand', { player });
-    const waiting = board.create(Space, 'waiting', { player });
+    const mat = board.create(Space, 'mat',  {player })
+    const hand = mat.create(Space, 'hand', { player });
+    const waiting = mat.create(Space, 'waiting', { player });
     hand.onEnter(Card, t => {
       t.showOnlyTo(player)
       hand.sortBy([(c: Card) => ['heart', 'spade', 'diamond', 'club'].indexOf(c.suit), (c:Card) => -c.rank])
@@ -95,7 +96,8 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
       }
       const firstCard = $.middle.first(Card)
         if (!firstCard) {
-          return player.my('hand')!.all(Card, (c) => board.heartsBroken || c.suit !== 'heart')
+          const allHearts = !player.my('hand')!.has(Card, (c) => c.suit !== "heart")
+          return player.my('hand')!.all(Card, (c) => board.heartsBroken || allHearts || c.suit !== 'heart')
         }
         const followingCards = player.my('hand')!.all(Card, {suit: firstCard.suit})
         return followingCards.length === 0 ? player.my('hand')!.all(Card) : followingCards
@@ -165,7 +167,7 @@ export default createGame(HeartsPlayer, HeartsBoard, game => {
           })
           const controlled = scores.find((s) => s === 26)
           scores.forEach((score, i) => {
-            game.players[i].score += controlled ? 26 - scores[i] : scores[i]
+            game.players[i].score += controlled !== undefined ? 26 - scores[i] : scores[i]
           })
           if (board.omnibus) {
             game.players.forEach((p, i) => {
