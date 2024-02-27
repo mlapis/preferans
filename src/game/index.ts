@@ -41,7 +41,7 @@ export class Card extends Piece {
 export default createGame<HeartsPlayer, Hearts>(
   HeartsPlayer,
   Hearts,
-  (game: Hearts) => {
+  (game) => {
     const { action } = game;
     const { playerActions, whileLoop, loop, eachPlayer, everyPlayer } =
       game.flowCommands;
