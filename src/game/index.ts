@@ -1,12 +1,13 @@
 import {
   Game,
+  Space,
+  Piece,
   createGame,
   Player,
   Do,
-  createGameClasses,
 } from "@boardzilla/core";
 
-class Hearts extends Game<HeartsPlayer, Hearts> {
+export class Hearts extends Game<Hearts, HeartsPlayer> {
   /**
    * Any overall properties of your game go here
    */
@@ -17,28 +18,24 @@ class Hearts extends Game<HeartsPlayer, Hearts> {
   noPass = false;
 }
 
-export class HeartsPlayer extends Player<HeartsPlayer, Hearts> {
+export class HeartsPlayer extends Player<Hearts, HeartsPlayer> {
   /**
    * Any properties of your players that are specific to your game go here
    */
   score: number = 0;
 }
 
-const { Space, Piece } = createGameClasses<HeartsPlayer, Hearts>();
-
-export { Space };
-
 type Suit = "club" | "heart" | "spade" | "diamond";
 /**
  * Define your game's custom pieces and spaces.
  */
-export class Card extends Piece {
+export class Card extends Piece<Hearts> {
   suit: Suit;
   value: string;
   rank: number;
 }
 
-export default createGame<HeartsPlayer, Hearts>(
+export default createGame(
   HeartsPlayer,
   Hearts,
   (game) => {

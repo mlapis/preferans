@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@boardzilla/core@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@boardzilla/core/-/core-0.1.2.tgz#fd98698779c81676e1d80a1022f212625063dccc"
-  integrity sha512-VzJnYNCpcFCb/yTY9+t9sjJdhZemWJe4YzFsRjijAAaX9BpErqOKVxcE50KHC7NRTmlScYgVp440ZZ+ZXSavHg==
+"@boardzilla/core@^0.2.0":
+  version "0.2.10"
+  resolved "https://registry.yarnpkg.com/@boardzilla/core/-/core-0.2.10.tgz#940ae4c3ee15c66a34542c849ab97ac9f35df4a8"
+  integrity sha512-7hLLd8d211h55LUy9yHImGDDp1aW+6Au+5tEn/BEkTVjqVlq30HWTKqQvyQuR9wf4W0VbHqhMv281kF8qG0tPw==
   dependencies:
     classnames "^2.3.1"
     graphology "^0.25.4"
@@ -539,9 +539,9 @@ graphology-indices@^0.17.0:
     mnemonist "^0.39.0"
 
 graphology-shortest-path@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/graphology-shortest-path/-/graphology-shortest-path-2.0.2.tgz#01385d2c0452ead890da2203b30d00177397678e"
-  integrity sha512-hlGvh4Yb1Vmd2J7wT8Q8+t4RQ6Tx+9wRYm0/fZB9PZJ4uW3nml5kJ7yXZ2+JYWT+7wLLmY5mg3o9bLSAWmv/jQ==
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/graphology-shortest-path/-/graphology-shortest-path-2.1.0.tgz#b5c5a568e7c86b24cbfd2042f9d84f2a54e0b331"
+  integrity sha512-KbT9CTkP/u72vGEJzyRr24xFC7usI9Es3LMmCPHGwQ1KTsoZjxwA9lMKxfU0syvT/w+7fZUdB/Hu2wWYcJBm6Q==
   dependencies:
     "@yomguithereal/helpers" "^1.1.1"
     graphology-indices "^0.17.0"
@@ -1130,8 +1130,8 @@ yocto-queue@^1.0.0:
   integrity sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==
 
 zustand@^4.4.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.5.0.tgz#141354af56f91de378aa6c4b930032ab338f3ef0"
-  integrity sha512-zlVFqS5TQ21nwijjhJlx4f9iGrXSL0o/+Dpy4txAP22miJ8Ti6c1Ol1RLNN98BMib83lmDH/2KmLwaNXpjrO1A==
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.5.2.tgz#fddbe7cac1e71d45413b3682cdb47b48034c3848"
+  integrity sha512-2cN1tPkDVkwCy5ickKrI7vijSjPksFRfqS6237NzT0vqSsztTNnQdHw9mmN7uBdk3gceVXU0a+21jFzFzAc9+g==
   dependencies:
     use-sync-external-store "1.2.0"

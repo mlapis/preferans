@@ -1,9 +1,8 @@
 import React from "react";
 import { ProfileBadge, render, toggleSetting } from "@boardzilla/core";
-import { default as setup, Space, Card } from "../game/index.js";
+import { default as setup, Card } from "../game/index.js";
 
 import "./style.scss";
-import "@boardzilla/core/index.css";
 
 function handPosition(
   i: number,
