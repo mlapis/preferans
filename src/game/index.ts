@@ -111,13 +111,12 @@ export default createGame(
                   .my("hand")!
                   .all(Card);
               }
-              const trumpSuit = "heart";
               const followingCards = player
                 .my("hand")!
                 .all(Card, { suit: firstCard.suit });
               const trumpCards = player
                 .my("hand")!
-                .all(Card, { suit: trumpSuit });
+                .all(Card, { suit: game.trumpSuit });
 
               return followingCards.length === 0
                 ? trumpCards.length === 0 ? player.my("hand")!.all(Card) : trumpCards
@@ -155,6 +154,7 @@ export default createGame(
             });
           },
           () => {
+            game.trumpSuit = "heart";
             game.players.forEach((p) =>
               p.my("waiting")?.all(Card).putInto(p.my("hand")!)
             );
@@ -170,13 +170,20 @@ export default createGame(
             () => {
               const playedCards = $.middle.all(Card);
               let highest = 0;
+              let highestSuit = playedCards[0].suit;
+
               playedCards.forEach((c) => {
-                if (c.suit !== playedCards[0].suit) return;
+                if (c.suit !== game.trumpSuit) return;
+                highestSuit = game.trumpSuit;
+              });
+
+              playedCards.forEach((c) => {
+                if (c.suit !== highestSuit) return;
                 if (c.rank < highest) return;
                 highest = c.rank;
               });
               const trickWinnerIndex = playedCards.findIndex(
-                (c) => c.suit === playedCards[0].suit && c.rank === highest
+                (c) => c.suit === highestSuit && c.rank === highest
               );
               const trickWinner = game.players.seatedNext(
                 game.startingPlayer!,
