@@ -1,6 +1,6 @@
 {
-  "minPlayers": 4,
-  "maxPlayers": 4,
+  "minPlayers": 3,
+  "maxPlayers": 3,
   "ui": {
     "root": ".",
     "build": {

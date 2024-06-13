@@ -12,8 +12,8 @@ function handPosition(
   height: number
 ): { left: number; top: number; height: number; width: number } {
   const area = {
-    top: Math.sin((Math.PI * i * 2) / total) * distance * 50 + 50 - height / 2,
-    left: Math.cos((Math.PI * i * 2) / total) * distance * 50 + 50 - width / 2,
+    top: i === 1 ? 60 : 10,
+    left: i === 3 ? 60 : 0,
     height,
     width,
   };
@@ -70,8 +70,8 @@ render(setup, {
           i + 2,
           otherPlayers.length + 1,
           0.7,
-          30,
-          20
+          20,
+          30
         ),
         columns: { max: 1 },
       });

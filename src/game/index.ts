@@ -76,11 +76,6 @@ export default createGame(
     $.deck.setOrder("stacking");
     ["club", "spade", "diamond", "heart"].forEach((suit: Suit) => {
       [
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
         "7",
         "8",
         "9",
@@ -98,37 +93,13 @@ export default createGame(
      * Define all possible game actions.
      */
     game.defineActions({
-      pickThree: (player) => {
-        const directions = game.noPass
-          ? ["left", "center", "right", null]
-          : ["left", "center", "right"];
-        const direction = directions[game.round % directions.length];
-        if (direction === null) {
-          return action();
-        }
-        return action({
-          prompt: "Pick three and pass them to the " + direction,
-        })
-          .chooseOnBoard("cards", () => player.my("hand")!.all(Card), {
-            number: 3,
-          })
-          .do(({ cards }) =>
-            cards.forEach((c) =>
-              c.putInto(
-                game.players
-                  .seatedNext(player, (game.round % directions.length) + 1)
-                  .my("waiting")!
-              )
-            )
-          );
-      },
       playCard: (player) =>
         action()
           .chooseOnBoard(
             "card",
             () => {
-              if (player.my("hand")!.has(Card, "2-club")) {
-                return player.allMy(Card, "2-club");
+              if (player.my("hand")!.has(Card, "7-club")) {
+                return player.allMy(Card, {suit: "club"});
               }
               const firstCard = $.middle.first(Card);
               if (!firstCard) {
@@ -172,6 +143,7 @@ export default createGame(
           () => {
             // TODO: i don't understand how to refactor this
             $.deck.shuffle();
+            $.deck.shuffle();
             $.deck.all(Card).forEach((card, index) => {
               card.putInto(
                 game.players[index % game.players.length].my(Space, {
@@ -180,12 +152,11 @@ export default createGame(
               );
             });
           },
-          everyPlayer({ do: playerActions({ actions: ["pickThree"] }) }),
           () => {
             game.players.forEach((p) =>
               p.my("waiting")?.all(Card).putInto(p.my("hand")!)
             );
-            const firstPlayer = game.players.find((p) => p.has(Card, "2-club"));
+            const firstPlayer = game.players.find((p) => p.has(Card, "7-club"));
             game.startingPlayer = firstPlayer;
           },
           loop(
