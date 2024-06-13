@@ -13,6 +13,7 @@ export class Hearts extends Game<Hearts, HeartsPlayer> {
    */
   round = 0;
   startingPlayer?: HeartsPlayer;
+  trumpSuit: Suit;
   heartsBroken: boolean = false;
   omnibus = false;
   noPass = false;
@@ -99,7 +100,7 @@ export default createGame(
             "card",
             () => {
               if (player.my("hand")!.has(Card, "7-club")) {
-                return player.allMy(Card, {suit: "club"});
+                return player.allMy(Card);
               }
               const firstCard = $.middle.first(Card);
               if (!firstCard) {
@@ -108,16 +109,18 @@ export default createGame(
                   .has(Card, (c) => c.suit !== "heart");
                 return player
                   .my("hand")!
-                  .all(
-                    Card,
-                    (c) => game.heartsBroken || allHearts || c.suit !== "heart"
-                  );
+                  .all(Card);
               }
+              const trumpSuit = "heart";
               const followingCards = player
                 .my("hand")!
                 .all(Card, { suit: firstCard.suit });
+              const trumpCards = player
+                .my("hand")!
+                .all(Card, { suit: trumpSuit });
+
               return followingCards.length === 0
-                ? player.my("hand")!.all(Card)
+                ? trumpCards.length === 0 ? player.my("hand")!.all(Card) : trumpCards
                 : followingCards;
               // TODO: why doesn't this work?
               // }, {skipIf: () => player.my('hand')!.all(Card).length === 1}).
@@ -143,8 +146,7 @@ export default createGame(
           () => {
             // TODO: i don't understand how to refactor this
             $.deck.shuffle();
-            $.deck.shuffle();
-            $.deck.all(Card).forEach((card, index) => {
+            $.deck.all(Card).slice(0,-2).forEach((card, index) => {
               card.putInto(
                 game.players[index % game.players.length].my(Space, {
                   name: "hand",

@@ -100,12 +100,12 @@ render(setup, {
     });
 
     board.layout("deck", {
-      area: { top: 40, left: 40, width: 20, height: 20 },
+      area: { top: 40, left: 30, width: 20, height: 20 },
     });
     $.deck.layout(Card, {
       rows: { max: 1 },
-      offsetColumn: { x: 0.1, y: 0.1 },
-      maxOverlap: 0,
+      offsetColumn: { x: 60, y: 0 },
+      maxOverlap: 1,
       direction: "ltr",
     });
 
