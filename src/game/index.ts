@@ -200,14 +200,7 @@ export default createGame(
             const scores = game.players.map((p) => {
               let score = 0;
               const cards = p.my("waiting")!.all(Card);
-              cards.forEach((c) => {
-                if (c.name === "q-spade") {
-                  score += 13;
-                } else if (c.suit === "heart") {
-                  score += 1;
-                }
-              });
-              return score;
+              return cards.length / 3;
             });
             const controlled = scores.find((s) => s === 26);
             scores.forEach((score, i) => {
